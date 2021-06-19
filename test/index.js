@@ -26,7 +26,7 @@ const expect = chai.expect;
 const userSchema = {
     title: "Schema do Usuario, define como é o usuario, linha 24 do teste",
     type: "object",
-    required: ['nome', 'email', 'idade'],
+    // required: ['nome', 'email', 'idade'],
     properties: {
         nome: {
             type: 'string'
@@ -89,9 +89,10 @@ describe('Testes da aplicaçao', () => {
         chai.request(app)
             .get('/user/naoExiste')
             .end(function (err, res) {
-                expect(err.response.body.error).to.be.equal('User not found'); //possivelmente forma errada de verificar a mensagem de erro
+                // console.log(res.body);
+                expect(res.body.msg).to.be.equal('User not found'); //possivelmente forma errada de verificar a mensagem de erro
                 expect(res).to.have.status(404);
-                expect(res.body).to.be.jsonSchema(userSchema);
+                expect(res.body.userSchema).to.be.jsonSchema(userSchema);
                 done();
             });
     });
