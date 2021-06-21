@@ -40,17 +40,14 @@ router.post('/user', async (ctx) => {
     ctx.status = 201;
     const body = ctx.request.body;
     users.push(body);
+    // return (body)
 });
 
 router.get('/user/naoExiste', async (ctx) => {
     ctx.status = 404;
     ctx.body = userSchema;
     ctx.body = { msg: "User not found", userSchema };
-    // const error = Error("User not found")
-    // ctx.app.emit("error", error, ctx);
-    // ctx.throw(404, 'User not found');
 });
-
 
 
 
