@@ -32,7 +32,7 @@ router.get('/', async (ctx) => {
 //As rotas devem ficar em arquivos separados, /src/controllers/userController.js por exemplo
 router.get('/users', async (ctx) => {
     ctx.status = 200;
-    ctx.body = { total: 0, count: 0, rows: [] }
+    ctx.body = { total: 5, count: 0, rows: [] }
 });
 
 //cria o usuario raupp
@@ -47,6 +47,18 @@ router.get('/user/naoExiste', async (ctx) => {
     ctx.status = 404;
     ctx.body = userSchema;
     ctx.body = { msg: "User not found", userSchema };
+});
+
+router.get('/user/raupp', async (ctx) => {
+    ctx.status = 200;
+    ctx.body = userSchema;
+    ctx.body = { userSchema };
+});
+
+router.delete('/user/raupp', async (ctx) => {
+    ctx.status = 200;
+    ctx.body = userSchema;
+    ctx.body = { userSchema };
 });
 
 
