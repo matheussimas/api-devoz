@@ -1,25 +1,7 @@
 const Router = require('koa-router');
 const PORT = process.env.PORT || 3000;
 
-var router = new Router();
-
-const userSchema = {
-    title: "Schema do Usuario, define como é o usuario, linha 24 do teste",
-    type: "object",
-    // required: ['nome', 'email', 'idade'],
-    properties: {
-        nome: {
-            type: 'string'
-        },
-        email: {
-            type: 'string'
-        },
-        idade: {
-            type: 'number',
-            minimum: 18
-        }
-    }
-}
+const router = new Router();
 
 users = [];
 
@@ -32,35 +14,52 @@ router.get('/', async (ctx) => {
 //As rotas devem ficar em arquivos separados, /src/controllers/userController.js por exemplo
 router.get('/users', async (ctx) => {
     ctx.status = 200;
-    ctx.body = { total: 5, count: 0, rows: [] }
+    ctx.body = { total: users.length, rows: users }
 });
 
 //cria o usuario raupp
 router.post('/user', async (ctx) => {
-    ctx.status = 201;
+    const { nome, email, idade } = ctx.request.body;
+    const isValidUser = nome && email && idade;
+
+    if (!isValidUser) {
+        ctx.body = { msg: 'Invalid user (missing parameters)' };
+        ctx.status = 400;
+        return
+    }
+
     const body = ctx.request.body;
     users.push(body);
-    // return (body)
+    ctx.status = 201;
 });
 
-router.get('/user/naoExiste', async (ctx) => {
-    ctx.status = 404;
-    ctx.body = userSchema;
-    ctx.body = { msg: "User not found", userSchema };
+router.get('/user/:user', async (ctx) => {
+    const userParams = ctx.params.user;
+    const user = users.find(user => user.nome === userParams)
+
+    if (user === undefined) {
+        ctx.body = { msg: 'User not found' };
+        ctx.status = 404;
+        return
+    }
+
+    ctx.body = user;
 });
 
-router.get('/user/raupp', async (ctx) => {
+router.delete('/user/:user', async (ctx) => {
+    const userToDel = ctx.params.user;
+    users = users.filter(user => user.nome !== userToDel);
+
+    if (userToDel === undefined) {
+        ctx.body = { msg: 'User not found' };
+        ctx.status = 404;
+        return
+    }
     ctx.status = 200;
-    ctx.body = userSchema;
-    ctx.body = { userSchema };
 });
 
-router.delete('/user/raupp', async (ctx) => {
-    ctx.status = 200;
-    ctx.body = userSchema;
-    ctx.body = { userSchema };
-});
-
-
+for (i = 1; i < 6; i++) {
+    users.push({ nome: `nome${i}`, email: `email${i}@email.com`, idade: 20 })
+};
 
 module.exports = router;
