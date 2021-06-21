@@ -1,9 +1,11 @@
 const Router = require('koa-router');
 const PORT = process.env.PORT || 3000;
 
+const utils = require('../utils/index')
+
 const router = new Router();
 
-users = [];
+let users = [];
 
 //rota simples pra testar se o servidor está online
 router.get('/', async (ctx) => {
@@ -19,10 +21,9 @@ router.get('/users', async (ctx) => {
 
 //cria o usuario raupp
 router.post('/user', async (ctx) => {
-    const { nome, email, idade } = ctx.request.body;
-    const isValidUser = nome && email && idade;
+    const isValid = utils.isUserValid(ctx.request.body);
 
-    if (!isValidUser) {
+    if (!isValid) {
         ctx.body = { msg: 'Invalid user (missing parameters)' };
         ctx.status = 400;
         return
@@ -33,11 +34,25 @@ router.post('/user', async (ctx) => {
     ctx.status = 201;
 });
 
+router.post('/users', async (ctx) => {
+    const usersToAdd = ctx.request.body;
+    const isAllUsersValid = usersToAdd.every(utils.isUserValid);
+
+    if (!isAllUsersValid) {
+        ctx.body = { msg: 'At least one user is invalid' };
+        ctx.status = 400;
+        return
+    }
+
+    users.push(...usersToAdd);
+    ctx.status = 201;
+});
+
 router.get('/user/:user', async (ctx) => {
     const userParams = ctx.params.user;
     const user = users.find(user => user.nome === userParams)
 
-    if (user === undefined) {
+    if (!user) {
         ctx.body = { msg: 'User not found' };
         ctx.status = 404;
         return
@@ -50,16 +65,12 @@ router.delete('/user/:user', async (ctx) => {
     const userToDel = ctx.params.user;
     users = users.filter(user => user.nome !== userToDel);
 
-    if (userToDel === undefined) {
+    if (!userToDel) {
         ctx.body = { msg: 'User not found' };
         ctx.status = 404;
         return
     }
     ctx.status = 200;
 });
-
-for (i = 1; i < 6; i++) {
-    users.push({ nome: `nome${i}`, email: `email${i}@email.com`, idade: 20 })
-};
 
 module.exports = router;
